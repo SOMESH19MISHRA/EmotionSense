@@ -6,3 +6,5 @@ data/raw/
 .env
 *.egg-info/
 .DS_Store
+
+model/saved/embeddings_cache.npz
