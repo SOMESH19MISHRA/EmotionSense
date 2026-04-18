@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 *.pyo
-model/saved/
+
 data/raw/
 .env
 *.egg-info/
