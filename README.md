@@ -1,52 +1,97 @@
-# EmotionSense — Multi-Class Emotion Detection
+# EmotionSense v4 — Multi-Class Emotion Detection
 
-A complete end-to-end MLOps project that detects 6 emotions in text using a **custom neural network built from scratch in NumPy**, trained on the real [dair-ai/emotion](https://huggingface.co/datasets/dair-ai/emotion) dataset.
+[![CI/CD](https://github.com/SOMESH19MISHRA/EmotionSense/actions/workflows/deploy.yml/badge.svg)](https://github.com/SOMESH19MISHRA/EmotionSense/actions)
+![Accuracy](https://img.shields.io/badge/Accuracy-92.8%25-brightgreen)
+![Model](https://img.shields.io/badge/Model-DistilBERT%20Fine--tuned-purple)
+![AWS](https://img.shields.io/badge/AWS-S3%20%7C%20Bedrock%20%7C%20EC2-orange)
 
-## Emotions Detected
-`sadness` · `joy` · `love` · `anger` · `fear` · `surprise`
+> **92.8% accuracy** on 2,000 unseen tweets using fully fine-tuned DistilBERT.  
+> Deployed on AWS EC2 · Model stored on AWS S3 · Compared against AWS Bedrock Claude 3 Haiku.
 
-## Dataset
-- **Source:** dair-ai/emotion (Saravia et al., EMNLP 2018)
-- **Size:** 20,000 real English tweets
-- **HuggingFace:** https://huggingface.co/datasets/dair-ai/emotion
+---
 
-## Quick Start
+## 👤 Author
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+| Field | Value |
+|---|---|
+| **Student** | Somesh Mishra |
+| **Enrollment** | E23CSEU1682 |
+| **Teacher** | Mr. Naveen Kumar |
+| **Course** | CSET-363 — AWS Cloud Support Associate |
+| **Dataset** | [dair-ai/emotion](https://huggingface.co/datasets/dair-ai/emotion) |
+| **GitHub** | [SOMESH19MISHRA/EmotionSense](https://github.com/SOMESH19MISHRA/EmotionSense) |
 
-# 2. Download real dataset from HuggingFace
-python scripts/download_dataset.py
+---
 
-# 3. Train the custom MLP
-python train.py
+## 🎭 Emotions Detected (6 classes)
 
-# 4. Start API
-uvicorn main:app --reload
+`joy` · `sadness` · `anger` · `fear` · `love` · `surprise`
 
-# 5. Open frontend
-open frontend/index.html
+---
+
+## 📊 Model Performance
+
+| Metric | Score |
+|---|---|
+| **Accuracy** | **92.8%** |
+| **Macro F1** | **88.9%** |
+| **Precision** | **87.5%** |
+| **Recall** | **90.6%** |
+| vs AWS Bedrock | **+38.7%** |
+
+---
+
+## ☁️ AWS Services Used
+
+| Service | Usage |
+|---|---|
+| **AWS S3** | Stores 254MB `best_model.pt`. API downloads it automatically at startup. |
+| **AWS Bedrock** | Claude 3 Haiku zero-shot comparison via boto3. Benchmark: 54.05% accuracy. |
+| **AWS EC2** | t2.medium Ubuntu 24.04. Hosts Docker container. Port 8000 public. |
+
+---
+
+## 🧠 Model Architecture
+
+```
+Text
+ → DistilBERT (66M params, FULLY fine-tuned, unfrozen)
+ → Mean Pooling (768-dim)
+ → Dropout(0.3) → Dense(256, GELU) → Dropout(0.2) → Dense(6, Softmax)
+ → Emotion + Confidence
 ```
 
-## Run with Docker
+---
+
+## 🚀 Quick Start
+
+```bash
+git clone https://github.com/SOMESH19MISHRA/EmotionSense.git
+cd EmotionSense
+pip install -r requirements.txt
+python scripts/download_dataset.py
+python -m uvicorn main:app --reload
+# Open frontend/index.html in browser
+```
+
+---
+
+## 🐳 Docker
 
 ```bash
 docker build -t emotionsense .
 docker run -p 8000:8000 emotionsense
 ```
 
-## API Endpoints
+---
+
+## 🔌 API Endpoints
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/predict` | Detect emotion from text |
-| GET | `/metrics` | Model performance metrics |
+|---|---|---|
+| GET | `/` | API status + AWS services |
+| POST | `/predict` | Emotion detection (our model) |
+| POST | `/predict/bedrock` | AWS Bedrock Claude comparison |
+| GET | `/metrics` | Full performance metrics |
+| GET | `/aws` | All 3 AWS services documented |
 | GET | `/health` | Health check |
-
-## Architecture
-- **Model:** Custom MLP (NumPy only) — Input → 256 → 128 → 64 → 6 (Softmax)
-- **Features:** He init, ReLU, Dropout, Momentum SGD, Early Stopping
-- **Text Features:** TF-IDF (8,000 features, 1+2-grams)
-- **API:** FastAPI + Pydantic
-- **CI/CD:** GitHub Actions → Docker Hub
